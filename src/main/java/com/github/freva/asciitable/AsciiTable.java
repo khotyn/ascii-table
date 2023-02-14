@@ -118,7 +118,7 @@ public class AsciiTable {
                     return LineUtils.lines(text)
                             .flatMap(paragraph -> {
                                 int limit = colWidths[i] - 2 * PADDING;
-                                if (paragraph.length() <= limit) return Stream.of(paragraph);
+                                if (LineUtils.calculateStringLength(paragraph) <= limit) return Stream.of(paragraph);
 
                                 switch (overflows[i]) {
                                     case CLIP_LEFT: return Stream.of(paragraph.substring(paragraph.length() - limit));
@@ -171,9 +171,9 @@ public class AsciiTable {
 
         for (int col = 0; col < columns.length; col++) {
             int length = result[col];
-            if (columns[col].getHeader() != null && columns[col].getHeader().length() > length)
+            if (columns[col].getHeader() != null && LineUtils.calculateStringLength(columns[col].getHeader()) > length)
                 length = Math.max(length, LineUtils.maxLineLength(columns[col].getHeader()));
-            if (columns[col].getFooter() != null && columns[col].getFooter().length() > length)
+            if (columns[col].getFooter() != null && LineUtils.calculateStringLength(columns[col].getFooter()) > length)
                 length = Math.max(length, LineUtils.maxLineLength(columns[col].getFooter()));
             result[col] = Math.max(Math.min(columns[col].getMaxWidth(), length + 2 * PADDING), columns[col].getMinWidth());
         }
@@ -208,14 +208,15 @@ public class AsciiTable {
      * @param minPadding Length of padding to apply from both left and right before justifying
      */
     static void writeJustified(OutputStreamWriter osw, String str, HorizontalAlign align, int length, int minPadding) throws IOException {
-        if (str.length() < length) {
+        int strLen = LineUtils.calculateStringLength(str);
+        if (strLen < length) {
             int leftPadding = align == HorizontalAlign.LEFT ?   minPadding :
-                              align == HorizontalAlign.CENTER ? (length - str.length()) / 2 :
-                                                                length - str.length() - minPadding;
+                              align == HorizontalAlign.CENTER ? (length - strLen) / 2 :
+                                                                length - strLen - minPadding;
 
             writeRepeated(osw, ' ', leftPadding);
             osw.write(str);
-            writeRepeated(osw, ' ', length - str.length() - leftPadding);
+            writeRepeated(osw, ' ', length - strLen - leftPadding);
         } else osw.write(str);
     }
 

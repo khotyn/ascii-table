@@ -36,4 +36,16 @@ public class LineUtilsTest {
 
         assertEquals(expected, LineUtils.splitTextIntoLinesOfMaxLength(str, 12));
     }
+
+    @Test
+    public void testCJK() {
+        String str = "易方达中证海外中国互联网50ETF联接(QDII)C";
+        System.out.println(LineUtils.calculateStringLength(str));
+    }
+
+    @Test
+    public void testColor() {
+        String str = "\u001B[31m61.906%\u001B[0m";
+        System.out.println(LineUtils.calculateStringLength(str));
+    }
 }
